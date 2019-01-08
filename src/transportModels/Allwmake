@@ -1,0 +1,27 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Parse arguments for library compilation
+. $WM_PROJECT_DIR/wmake/scripts/AllwmakeParseArguments
+
+# Libraries twoPhaseProperties and interfaceProperties are circularly
+# dependent on each other, so we need to compile in stages.
+
+wmake $targetType twoPhaseMixture
+
+wmake lib twoPhaseProperties
+wmake lib interfaceProperties
+
+wmake $targetType twoPhaseProperties
+wmake $targetType interfaceProperties
+
+rm -f $FOAM_LIBBIN/libtwoPhaseProperties.dll $FOAM_LIBBIN/libtwoPhaseProperties.so \
+    && wmake $targetType twoPhaseProperties
+rm -f $FOAM_LIBBIN/libinterfaceProperties.dll $FOAM_LIBBIN/libinterfaceProperties.so \
+    && wmake $targetType interfaceProperties
+
+wmake $targetType incompressible
+wmake $targetType compressible
+wmake $targetType immiscibleIncompressibleTwoPhaseMixture
+
+#------------------------------------------------------------------------------

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ "$WM_OSTYPE" == "MSWindows" ]
+then
+
+    # Get Cygwin location within Windows filesystem and substitute backward slashes by forward slashes.
+    cygwindir=$(dirname $(cygpath -w '/') | sed 's/\\/\//g')
+
+    # Use the previous variable to obtain lowercase drive letter; prefix is by '/cygdrive/'.
+    drive=$(echo $cygwindir | sed 's/\(.*\)\(:\)\(.*\)/\/cygdrive\/\L\1/g')
+
+    # Compose the path to ParaView BIN. ParaView directory is parent to the Cygwin installation.
+    path=$drive$(echo $cygwindir | sed 's/\(.*\)\(:\)\(.*\)/\3/g')/bin
+
+    # Run ParaView.
+    PATH="" $path/paraview-launcher -opengl software -- "$@"
+
+else
+
+    # call the other paraview wrapper
+    $WM_THIRD_PARTY_DIR/bin/paraview-lp "$@"
+
+fi

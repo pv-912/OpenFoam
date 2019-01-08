@@ -1,0 +1,25 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Parse arguments for library compilation
+. $WM_PROJECT_DIR/wmake/scripts/AllwmakeParseArguments
+
+# Libraries twoPhaseSystem and twoPhaseCompressibleTurbulenceModels
+# are circularly dependent on each other, we need to compile in stages.
+
+rm -f $FOAM_LIBBIN/libreactingTwoPhaseSystem.a \
+    && wmake lib twoPhaseSystem
+rm -f $FOAM_LIBBIN/libtwoPhaseReactingTurbulenceModels.a \
+    && wmake lib twoPhaseCompressibleTurbulenceModels
+
+wmake $targetType twoPhaseSystem
+wmake $targetType twoPhaseCompressibleTurbulenceModels
+
+rm -f $FOAM_LIBBIN/libreactingTwoPhaseSystem.so $FOAM_LIBBIN/libreactingTwoPhaseSystem.dll \
+    && wmake twoPhaseSystem
+rm -f $FOAM_LIBBIN/libtwoPhaseReactingTurbulenceModels.so $FOAM_LIBBIN/libtwoPhaseReactingTurbulenceModels.dll \
+    && wmake twoPhaseCompressibleTurbulenceModels
+
+wmake $targetType
+
+#------------------------------------------------------------------------------

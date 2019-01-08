@@ -1,0 +1,30 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Parse arguments for library compilation
+. $WM_PROJECT_DIR/wmake/scripts/AllwmakeParseArguments
+
+
+wmake lib phaseSystems
+wmake lib interfacialModels
+wmake lib interfacialCompositionModels
+
+wmake $targetType phaseSystems
+wmake $targetType interfacialModels
+wmake $targetType interfacialCompositionModels
+
+rm -f $FOAM_LIBBIN/libreactingPhaseSystems.so $FOAM_LIBBIN/libreactingPhaseSystems.dll \
+    && wmake $targetType phaseSystems
+rm -f $FOAM_LIBBIN/libreactingEulerianInterfacialModels.so $FOAM_LIBBIN/libreactingEulerianInterfacialModels.dll \
+    && wmake $targetType interfacialModels
+rm -f $FOAM_LIBBIN/libreactingEulerianInterfacialCompositionModels.so $FOAM_LIBBIN/libreactingEulerianInterfacialCompositionModels.dll \
+    && wmake $targetType interfacialCompositionModels
+
+wmake $targetType derivedFvPatchFields
+
+reactingTwoPhaseEulerFoam/Allwmake $targetType $*
+reactingMultiphaseEulerFoam/Allwmake $targetType $*
+
+wmake $targetType functionObjects
+
+#------------------------------------------------------------------------------

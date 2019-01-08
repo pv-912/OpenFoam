@@ -1,0 +1,42 @@
+#----------------------------*- makefile-gmake -*------------------------------
+
+AR         = ar
+ARFLAGS    = cr
+RANLIB     = ranlib
+CPP        = cpp
+LD         = ld
+
+GFLAGS     = -D$(WM_ARCH) -DWM_ARCH_OPTION=$(WM_ARCH_OPTION) \
+             -DWM_$(WM_PRECISION_OPTION) -DWM_LABEL_SIZE=$(WM_LABEL_SIZE)
+GINC       =
+GLIBS      =
+GLIB_LIBS  =
+
+ifeq ($(WM_OSTYPE),MSWindows)
+    COMPILER_TYPE   = $(WM_COMPILER)
+    GLIBS           = -L$(FOAM_LIBBIN)/$(FOAM_MPI) -lPstream
+    GLIB_LIBS       = -l$(WM_PROJECT) -L$(FOAM_LIBBIN)/$(FOAM_MPI) -lPstream
+else
+    COMPILER_TYPE   = $(shell echo $(WM_COMPILER) | tr -d [:digit:])
+    GLIBS           = $(RULES)/wrap_memcpy.o -Wl,--wrap=memcpy -lm -L$(zlibLib) -lz
+    GLIB_LIBS       = $(RULES)/wrap_memcpy.o -Wl,--wrap=memcpy -lm -L$(zlibLib) -lz
+endif
+
+DEFAULT_RULES   = $(WM_DIR)/rules/$(WM_ARCH)$(COMPILER_TYPE)
+RULES           = $(WM_DIR)/rules/$(WM_ARCH)$(WM_COMPILER)
+WMAKE_BIN       = $(WM_DIR)/platforms/$(WM_ARCH)$(WM_COMPILER)
+
+ifeq ($(WM_SCHEDULER),)
+    AND = &&
+else
+    AND = '&&'
+endif
+
+include $(DEFAULT_RULES)/general
+include $(DEFAULT_RULES)/$(WM_LINK_LANGUAGE)
+-include $(RULES)/general
+-include $(RULES)/$(WM_LINK_LANGUAGE)
+include $(GENERAL_RULES)/transform
+
+
+#------------------------------------------------------------------------------

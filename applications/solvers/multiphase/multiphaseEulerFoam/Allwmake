@@ -1,0 +1,24 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Parse arguments for library compilation
+. $WM_PROJECT_DIR/wmake/scripts/AllwmakeParseArguments
+
+
+# Libraries multiphaseSystem and interfacialModels are circularly dependent
+# on each other so we need to compile in stages.
+
+wmake lib multiphaseSystem
+wmake lib interfacialModels
+
+wmake $targetType multiphaseSystem
+wmake $targetType interfacialModels
+
+rm -f $FOAM_LIBBIN/libmultiphaseSystem.dll $FOAM_LIBBIN/libmultiphaseSystem.so \
+    && wmake $targetType multiphaseSystem
+rm -f $FOAM_LIBBIN/libcompressibleEulerianInterfacialModels.dll $FOAM_LIBBIN/libcompressibleEulerianInterfacialModels.so \
+    && wmake $targetType interfacialModels
+
+wmake $targetType
+
+#------------------------------------------------------------------------------

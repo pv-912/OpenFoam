@@ -1,0 +1,27 @@
+CGAL_INC = \
+    -DCGAL_NO_DEPRECATED_CODE \
+    -I$(CGAL_ARCH_PATH)/include \
+    -I$(MPFR_ARCH_PATH)/include \
+    -I$(GMP_ARCH_PATH)/include \
+    -I$(BOOST_ARCH_PATH)/include
+
+ifeq ($(WM_OSTYPE),MSWindows)
+    MPFR_ARCH_PATH=/usr/x86_64-w64-mingw32/sys-root/mingw
+    GMP_ARCH_PATH=/usr/x86_64-w64-mingw32/sys-root/mingw
+    BOOST_ARCH_PATH=/usr/x86_64-w64-mingw32/sys-root/mingw
+endif
+
+CGAL_LIBS = \
+    -L$(MPFR_ARCH_PATH)/lib \
+    -L$(GMP_ARCH_PATH)/lib \
+    -L$(BOOST_ARCH_PATH)/lib \
+    -L$(CGAL_ARCH_PATH)/lib$(WM_COMPILER_LIB_ARCH) \
+    -lCGAL \
+    -lmpfr
+
+ifeq ($(WM_OSTYPE),MSWindows)
+    CGAL_LIBS += \
+        -lboost_system-mt.dll \
+        -lboost_thread-mt.dll \
+        -lgmp
+endif

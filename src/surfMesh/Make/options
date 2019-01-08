@@ -1,0 +1,6 @@
+EXE_INC = \
+    -I$(flexInc) \
+    -I$(LIB_SRC)/fileFormats/lnInclude
+
+LIB_LIBS = \
+    -lfileFormats

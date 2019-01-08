@@ -1,0 +1,8 @@
+EXE_INC =
+
+LIB_LIBS =
+
+ifeq ($(WM_OSTYPE),MSWindows)
+    # Relax __STRICT_ANSI__ : CGAL uses non-standard functions.
+    c++FLAGS += -std=gnu++11
+endif
